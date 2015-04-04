@@ -1,0 +1,10 @@
+#PBS -N omptask
+#PBS -l nodes=1:ppn=8,mem=7gb
+#PBS -j oe
+
+cd $PBS_O_WORKDIR
+
+export GOMP_CPU_AFFINITY="0-7"
+
+export OMP_THREAD_LIMIT=8
+./sum

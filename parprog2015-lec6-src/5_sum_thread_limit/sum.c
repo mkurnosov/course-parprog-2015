@@ -23,62 +23,32 @@ double sum(double *v, int low, int high)
     return sum(v, low, mid) + sum(v, mid + 1, high);
 }
 
-/* sum_omp: OpenMP-limited nested parallelism -- ineffective version */
 double sum_omp(double *v, int low, int high)
-{
+{    
+    static int nthreads_used = 1;
+    
     if (low == high)
         return v[low];
     
     double sum_left, sum_right;
     int mid = (low + high) / 2;
 
-    #pragma omp parallel num_threads(2)
-    {
-        #pragma omp sections
-        {
-            #pragma omp section 
-            {
-                sum_left = sum_omp(v, low, mid);
-                //printf("L: Level %d / %d, thread %d / %d range [%d..%d] = %f\n", 
-                //       omp_get_active_level(), omp_get_level(), omp_get_thread_num(), omp_get_num_threads(), low, mid, sum_left);
-            }
-            
-            #pragma omp section
-            {
-                sum_right = sum_omp(v, mid + 1, high);
-
-                //printf("R: Level %d / %d, thread %d / %d range [%d..%d] = %f\n", 
-                //       omp_get_active_level(), omp_get_level(), omp_get_thread_num(), omp_get_num_threads(), mid + 1, high, sum_right);
-            }                
-        }
-    }
-    return sum_left + sum_right;
-}
-
-/* sum_omp_fixed_depth: Limited nested parallelism */
-double sum_omp_fixed_depth(double *v, int low, int high)
-{
-    if (low == high)
-        return v[low];
-    
-    double sum_left, sum_right;
-    int mid = (low + high) / 2;
-
-    if (omp_get_active_level() >= omp_get_max_active_levels()) {
-        // We have now about omp_get_active_level() * 2 threads
-        // Switch off to serial version
+    if (nthreads_used >= omp_get_thread_limit()) {
         return sum(v, low, high);
-    }
+    }        
     
+    #pragma omp atomic
+    nthreads_used++;
+
     #pragma omp parallel num_threads(2)
     {
         #pragma omp sections
         {
             #pragma omp section
-            sum_left = sum_omp_fixed_depth(v, low, mid);
+            sum_left = sum_omp(v, low, mid);
 
             #pragma omp section
-            sum_right = sum_omp_fixed_depth(v, mid + 1, high);
+            sum_right = sum_omp(v, mid + 1, high);
         }
     }
     return sum_left + sum_right;
@@ -108,15 +78,14 @@ double run_parallel()
     double *v = malloc(sizeof(*v) * N);
     for (int i = 0; i < N; i++)
         v[i] = i + 1.0;
-
-    int maxthreads = atoi(getenv("OMP_NUM_THREADS"));
-    int maxlevels = ilog2(maxthreads);
+  
     omp_set_nested(1);
-    omp_set_max_active_levels(maxlevels);
-    printf("Parallel version: max_threads = %d, max_levels = %d, \n", 1 << maxlevels, maxlevels);    
-        
+    printf("Parallel version:\n");
+    printf("  OMP_THREAD_LIMIT = %d\n", omp_get_thread_limit());
+    printf("  OMP_NESTED = %d\n", omp_get_nested());
+            
     double t = wtime();
-    double res = sum_omp_fixed_depth(v, 0, N - 1);
+    double res = sum_omp(v, 0, N - 1);
     t = wtime() - t;
     printf("Result (parallel): %.4f; error %.12f\n", res, fabs(res - (1.0 + N) / 2.0 * N));
     free(v);
