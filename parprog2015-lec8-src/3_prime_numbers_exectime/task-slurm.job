@@ -1,0 +1,7 @@
+#!/bin/bash
+
+#SBATCH --nodes=1 --ntasks-per-node=8
+
+mpiexec ./primes
+
+
