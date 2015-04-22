@@ -1,0 +1,5 @@
+#!/bin/bash
+
+#SBATCH --nodes=4 --ntasks-per-node=1
+
+mpiexec ./ring
