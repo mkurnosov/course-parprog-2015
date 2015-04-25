@@ -4,7 +4,7 @@
 #include <mpi.h>
 
 const int a = 1;
-const int b = 10000000;
+const int b = 100;
 
 int get_comm_rank()
 {
@@ -56,6 +56,18 @@ int count_prime_numbers(int a, int b)
     return nprimes;
 }
 
+int roundup_to_odd(int a)
+{
+    return (a % 2 == 0) ? a + 1 : a;
+}
+
+/* next_nth_odd: Returns n-th odd number after a */
+int next_nth_odd(int a, int n)
+{    
+    // assert: a % 2 != 0 
+    return a + 2 * n;
+}
+
 int count_prime_numbers_par(int a, int b)
 {
     int nprimes = 0;    
@@ -69,9 +81,11 @@ int count_prime_numbers_par(int a, int b)
         if (rank == 0)
             nprimes = 1;
     }
-    
-    for (int i = a + rank; i <= b; i += commsize) {
-        if (i % 2 > 0 && is_prime_number(i))
+
+    a = roundup_to_odd(a);
+    for (int i = next_nth_odd(a, rank); i <= b; i = next_nth_odd(i, commsize)) {
+        /* i is odd number */
+        if (is_prime_number(i))
             nprimes++;
     }    
     int nprimes_global = 0;
