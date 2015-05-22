@@ -109,7 +109,7 @@ int main(int argc, char *argv[])
     
     // Broadcast command line arguments
     if (rank == 0) {
-        if (argc < 4) {
+        if (argc < 3) {
             fprintf(stderr, "Usage: %s <px> <py> [<rows> <cols> <ticks>]\n", argv[0]);
             MPI_Abort(MPI_COMM_WORLD, 1);
         }
@@ -149,7 +149,6 @@ int main(int argc, char *argv[])
         cols = args[3];
         ticks = args[4];
     }    
-    MPI_Barrier(MPI_COMM_WORLD);
     
     // Allocate memory for 2D subgrids with halo cells [0..local_rows + 1][0..local_cols + 1]
     int local_rows = rows / py;

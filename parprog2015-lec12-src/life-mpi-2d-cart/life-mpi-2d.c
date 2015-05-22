@@ -120,10 +120,6 @@ int main(int argc, char *argv[])
     
     // Broadcast command line arguments
     if (rank == 0) {
-        if (argc < 4) {
-            fprintf(stderr, "Usage: %s [<rows> <cols> <ticks>]\n", argv[0]);
-            MPI_Abort(MPI_COMM_WORLD, 1);
-        }
         rows = (argc > 1) ? atoi(argv[1]) : 100;
         cols = (argc > 2) ? atoi(argv[2]) : 100;
         ticks = (argc > 3) ? atoi(argv[3]) : 10;
