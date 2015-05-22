@@ -1,0 +1,11 @@
+#!/bin/bash
+
+#SBATCH --nodes=4 --ntasks-per-node=8
+
+mpiexec ./life-mpi-2d 4 8 65536 65536 1
+
+
+
+
+
+
