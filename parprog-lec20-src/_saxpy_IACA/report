@@ -1,0 +1,50 @@
+Intel(R) Architecture Code Analyzer Version - 2.1
+Analyzed File - ./saxpy
+Binary Format - 64Bit
+Architecture  - IVB
+Analysis Type - Latency
+
+Latency Analysis Report
+---------------------------
+Latency: 17 Cycles
+
+N - port number or number of cycles resource conflict caused delay, DV - Divider pipe (on port 0)
+D - Data fetch pipe (on ports 2 and 3), CP - on a critical path
+F - Macro Fusion with the previous instruction occurred
+* - instruction micro-ops not bound to a port
+^ - Micro Fusion happened
+# - ESP Tracking sync uop was issued
+@ - Intel(R) AVX to Intel(R) SSE code switch, dozens of cycles penalty is expected
+! - instruction not supported, was not accounted in Analysis
+
+The Resource delay is counted since all the sources of the instructions are ready
+and until the needed resource becomes available
+
+| Inst |            Resource Delay In Cycles             |    |
+| Num  | 0  - DV | 1  | 2  - D  | 3  - D  | 4  | 5  | FE |    |
+---------------------------------------------------------------
+|  0   |         |    |         |         |    |    |    |    | test edx, edx
+|  1   |         |    |         |         |    |    |    |    | shufps xmm0, xmm0, 0x0
+|  2   |         |    |         |         |    |    |    |    | jle 0x2d
+|  3   |         |    |         |         |    |    |    |    | sub edx, 0x1
+|  4   |         |    |         |         |    |    | 1  | CP | xor eax, eax
+|  5   |         |    |         |         |    |    |    |    | add rdx, 0x1
+|  6   |         |    |         |         |    |    |    |    | shl rdx, 0x4
+|  7   |         |    |         |         |    |    |    |    | nop word ptr [rax+rax*1], ax
+|  8   |         |    |         |         |    |    |    | CP | movaps xmm1, xmmword ptr [rdi+rax*1]
+|  9   |         |    |         |         |    |    |    | CP | mulps xmm1, xmm0
+| 10   |         |    |         |         |    |    |    | CP | addps xmm1, xmmword ptr [rsi+rax*1]
+| 11   |         |    |         |         |    |    | 1  | CP | movaps xmmword ptr [rsi+rax*1], xmm1
+| 12   |         |    |         |         |    |    | 1  |    | add rax, 0x10
+| 13   |         |    |         |         |    |    |    |    | cmp rdx, rax
+| 14   |         |    |         |         |    |    |    |    | jnz 0xffffffffffffffea
+
+Resource Conflict on Critical Paths: 
+-------------------------------------------------------
+|  Port  | 0  - DV | 1  | 2  - D  | 3  - D  | 4  | 5  |
+-------------------------------------------------------
+| Cycles | 0    0  | 0  | 0    0  | 0    0  | 0  | 0  |
+-------------------------------------------------------
+
+List Of Delays On Critical Paths
+-------------------------------

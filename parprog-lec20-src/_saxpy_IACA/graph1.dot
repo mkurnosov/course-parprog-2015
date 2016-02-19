@@ -1,0 +1,32 @@
+digraph IacaAnalysisGraph{
+0 [label="0. test edx, edx", style=filled, color=cyan]
+1 [label="1. shufps xmm0, xmm0, 0x0", style=filled, color=cyan]
+2 [label="2. jle 0x2d", style=filled, color=cyan]
+3 [label="3. sub edx, 0x1", style=filled, color=cyan]
+4 [label="4. xor eax, eax", style=filled, color=pink]
+5 [label="5. add rdx, 0x1", style=filled, color=cyan]
+6 [label="6. shl rdx, 0x4", style=filled, color=cyan]
+7 [label="7. nop word ptr [rax+rax*1], ax", style=filled, color=cyan]
+8 [label="8. movaps xmm1, xmmword ptr [rdi+rax*1]", style=filled, color=pink]
+9 [label="9. mulps xmm1, xmm0", style=filled, color=pink]
+10 [label="10. addps xmm1, xmmword ptr [rsi+rax*1]", style=filled, color=pink]
+11 [label="11. movaps xmmword ptr [rsi+rax*1], xmm1", style=filled, color=pink]
+12 [label="12. add rax, 0x10", style=filled, color=cyan]
+13 [label="13. cmp rdx, rax", style=filled, color=cyan]
+14 [label="14. jnz 0xffffffffffffffea", style=filled, color=cyan]
+0 -> 2
+3 -> 5
+5 -> 6
+4 -> 7
+4 -> 8
+1 -> 9
+8 -> 9
+4 -> 10
+9 -> 10
+10 -> 11
+4 -> 11
+4 -> 12
+12 -> 13
+6 -> 13
+13 -> 14
+}
