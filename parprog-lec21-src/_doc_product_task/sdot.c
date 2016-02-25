@@ -16,22 +16,7 @@ float sdot(float *x, float *y, int n)
 
 float sdot_sse(float *x, float *y, int n)
 {
-    __m128 *xx = (__m128 *)x;
-    __m128 *yy = (__m128 *)y;
-    int k = n / 4;
-    float s = 0;
-    for (int i = 0; i < k; i++) {
-        __m128 v = _mm_mul_ps(xx[i], yy[i]);
-        v = _mm_hadd_ps(v, v);
-        v = _mm_hadd_ps(v, v);
-        float temp __attribute__ ((aligned (16)));
-        _mm_store_ss(&temp, v);
-        s += temp;
-    }
-        
-    for (int i = k * 4; i < n; i++)
-        s += x[i] * y[i];
-    return s;    
+    // TODO
 }
 
 

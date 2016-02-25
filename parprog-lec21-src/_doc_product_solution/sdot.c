@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include <pmmintrin.h>
+#include <smmintrin.h>
 #include <sys/time.h>
 
 enum { n = 1000003 };
@@ -27,6 +27,44 @@ float sdot_sse(float *x, float *y, int n)
         float temp __attribute__ ((aligned (16)));
         _mm_store_ss(&temp, v);
         s += temp;
+    }
+        
+    for (int i = k * 4; i < n; i++)
+        s += x[i] * y[i];
+    return s;    
+}
+
+float sdot_sse_1hadd(float *x, float *y, int n)
+{
+    __m128 *xx = (__m128 *)x;
+    __m128 *yy = (__m128 *)y;
+    int k = n / 4;
+    __m128 vsum = _mm_setzero_ps();
+    for (int i = 0; i < k; i++) {
+        __m128 v = _mm_mul_ps(xx[i], yy[i]); // v = [x3 * y3 | x2 * y2 | ... ]
+        v = _mm_hadd_ps(v, v);  // [x3 * y3 + x2 * y2 | x1 * y1 + x0 * y0 | ...]
+        vsum = _mm_add_ps(vsum, v);
+    }
+    vsum = _mm_hadd_ps(vsum, vsum);
+    float s __attribute__ ((aligned (16)));
+    _mm_store_ss(&s, vsum);
+
+    for (int i = k * 4; i < n; i++)
+        s += x[i] * y[i];
+    return s;    
+}
+
+float sdot_sse_dp(float *x, float *y, int n)
+{
+    __m128 *xx = (__m128 *)x;
+    __m128 *yy = (__m128 *)y;
+    int k = n / 4;
+    float s __attribute__ ((aligned (16))) = 0;
+    for (int i = 0; i < k; i++) {
+        __m128 v = _mm_dp_ps(xx[i], yy[i], 0xff);  // SSE4
+        float t __attribute__ ((aligned (16)));
+        _mm_store_ss(&t, v);
+        s += t;
     }
         
     for (int i = k * 4; i < n; i++)
@@ -75,8 +113,8 @@ double run_scalar()
 
 double run_vectorized()
 {
-    float *x = _mm_malloc(sizeof(*x) * n, 32);
-    float *y = _mm_malloc(sizeof(*y) * n, 32);
+    float *x = _mm_malloc(sizeof(*x) * n, 16);
+    float *y = _mm_malloc(sizeof(*y) * n, 16);
     for (int i = 0; i < n; i++) {
         x[i] = 2.0;
         y[i] = 3.0;

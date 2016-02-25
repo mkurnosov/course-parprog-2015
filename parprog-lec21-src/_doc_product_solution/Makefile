@@ -2,7 +2,7 @@ prog := sdot
 prog_objs := sdot.o
 
 CC := gcc
-CFLAGS := -Wall -O2 -msse3 -std=c99
+CFLAGS := -Wall -O2 -msse4 -std=c99
 LDFLAGS := -lm
 
 .PHONY: all clean
